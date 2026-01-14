@@ -6,9 +6,16 @@
 <!-- ========================= SECTION PAGETOP ========================= -->
 <section class="section-pagetop bg">
 <div class="container">
-	<h2 class="title-page">Our Store</h2>
+	{% if 'search' in request.path %}
+	<h2 class="title-page">Search Result</h2>
 
-</div> <!-- container //  -->
+
+
+	{% else %}
+	<h2 class="title-page">Our Store</h2>
+	{% endif %}
+
+</div>
 </section>
 <!-- ========================= SECTION INTRO END// ========================= -->
 
@@ -37,9 +44,9 @@
 				{% endfor %}
 				</ul>
 
-			</div> <!-- card-body.// -->
+			</div>
 		</div>
-	</article> <!-- filter-group  .// -->
+	</article>
 	<article class="filter-group">
 		<header class="card-header">
 			<a href="#" data-toggle="collapse" data-target="#collapse_4" aria-expanded="true" class="">
@@ -68,9 +75,9 @@
 			    <input type="checkbox">
 			    <span class="btn btn-light"> XXL </span>
 			  </label>
-		</div><!-- card-body.// -->
 		</div>
-	</article> <!-- filter-group .// -->
+		</div>
+	</article>
 
 	<article class="filter-group">
 		<header class="card-header">
@@ -85,7 +92,7 @@
 				<div class="form-row">
 				<div class="form-group col-md-6">
 				  <label>Min</label>
-				  <!-- <input class="form-control" placeholder="$0" type="number"> -->
+
 				  	<select class="mr-2 form-control">
 						<option value="0">$0</option>
 						<option value="50">$50</option>
@@ -108,15 +115,13 @@
 						<option value="2000">$2000+</option>
 					</select>
 				</div>
-				</div> <!-- form-row.// -->
+				</div>
 				<button class="btn btn-block btn-primary">Apply</button>
-			</div><!-- card-body.// -->
+			</div>
 		</div>
-	</article> <!-- filter-group .// -->
-
-</div> <!-- card.// -->
-
-	</aside> <!-- col.// -->
+	</article>
+</div>
+	</aside>
 	<main class="col-md-9">
 
 <header class="border-bottom mb-4 pb-3">
@@ -124,9 +129,10 @@
 			<span class="mr-md-auto"> <b>{{product_count}}</b> Items found </span>
 
 		</div>
-</header><!-- sect-heading -->
+</header>
 
 <div class="row">
+	{% if products %}
   {% for product in products  %}
 	<div class="col-md-4">
 		<figure class="card card-product-grid">
@@ -134,21 +140,26 @@
 
 			<a href="{{ product.get_url}}">	<img src="{{product.images.url}}"></a>
 
-			</div> <!-- img-wrap.// -->
+			</div>
 			<figcaption class="info-wrap">
 				<div class="fix-height">
 					<a href="{{product.get_url}}" class="title">{{product.product_name}}</a>
 					<div class="price-wrap mt-2">
-						<span class="price">$1280</span>
-						<del class="price-old">$1980</del>
-					</div> <!-- price-wrap.// -->
+						<span class="price">${{product.price}}</span>
+
+					</div>
 				</div>
-				<a href="#" class="btn btn-block btn-primary">Add to cart </a>
+				<a href="{{product.get_url}}" class="btn btn-block btn-primary">View Details </a>
 			</figcaption>
 		</figure>
 	</div>
   {% endfor %}
-  </div> <!-- col.// -->
+	{% else %}
+	<div>
+	<h2>No result found. please try again.</h2></div>
+	{% endif  %}
+
+  </div>
 
 
 
@@ -161,20 +172,39 @@
 
 
 <nav class="mt-4" aria-label="Page navigation sample">
+	{% if products.has_other_pages %}
   <ul class="pagination">
-    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-    <li class="page-item"><a class="page-link" href="#">2</a></li>
-    <li class="page-item"><a class="page-link" href="#">3</a></li>
-    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-  </ul><!-- ====
+		{% if products.has_previous %}
+    <li class="page-item"><a class="page-link" href="?page={{products.previous_page_number}}">Previous</a></li>
+     {% else %}
+		<li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+    {% endif %}
+
+		{% for i in products.paginator.page_range %}
+		{% if products.number == i %}
+	  	<li class="page-item active"><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+			{% else %}
+			<li class="page-item "><a class="page-link" href="?page={{i}}">{{i}}</a></li>
+   {% endif %}
+   {% endfor %}
+
+	 {% if products.has_next %}
+
+    <li class="page-item"><a class="page-link" href="?page={{products.next_page_number}}">Next</a></li>
+		{% else %}
+		<li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+		{% endif %}
+  </ul>
+	{% endif %}
+
+
+
 </nav>
 
-	</main> <!-- col.// -->
-
+	</main>
 </div>
 
-</div> <!-- container .//  -->
+</div>
 </section>
 <!-- ===================== SECTION CONTENT END// ========================= --> -->
 
