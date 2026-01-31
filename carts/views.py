@@ -201,6 +201,8 @@ from store.models import Product, Variation
 from .models import Cart, CartItem
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
+# from orders.models import OrderProduct,order
+
 
 
 
@@ -351,20 +353,73 @@ def cart(request, total=0, quantity=0, cart_items=None):
 
     return render(request, 'store/cart.html', context)
 
+# @login_required(login_url='login')
+# def checkout(request,total=0, quantity=0, cart_items=None):
+#     try:
+#         tax = 0
+#         grand_total = 0
+#         if request.user.is_authenticated:
+#                 cart_items = CartItem.objects.filter(user=request.user, is_active=True)
+#         else:
+#
+#
+#                 cart = Cart.objects.get(cart_id=_cart_id(request))
+#                 cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+#         for cart_item in cart_items:
+#             total += (cart_item.product.price * cart_item.quantity)
+#             quantity += cart_item.quantity
+#
+#         tax = (2 * total) / 100
+#         grand_total = total + tax
+
+
+
+# from chatgpt till order success
+        # for item in cart_items:
+        #     OrderProduct.objects.create(
+        #         order=order,
+        #         product=item.product,
+        #         quantity=item.quantity,
+        #         price=item.product.price
+        #     )
+        #
+        # cart_items.delete()
+        #
+        # return redirect('order_success')
+
+
+    #
+    # except ObjectDoesNotExist:
+    #     pass
+    #
+    # context = {
+    #     'total': total,
+    #     'quantity': quantity,
+    #     'cart_items': cart_items,
+    #     'tax': tax,
+    #     'grand_total': grand_total,
+    # }
+    # return render(request, 'store/checkout.html',context)
+
+
+
+
+    from orders.models import Order, OrderProduct
+from carts.models import CartItem
+from django.shortcuts import redirect
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
+
 @login_required(login_url='login')
-def checkout(request,total=0, quantity=0, cart_items=None):
+def checkout(request, total=0, quantity=0, cart_items=None):
+    tax = 0
+    grand_total = 0
+
     try:
-        tax = 0
-        grand_total = 0
-        if request.user.is_authenticated:
-                cart_items = CartItem.objects.filter(user=request.user, is_active=True)
-        else:
+        cart_items = CartItem.objects.filter(user=request.user, is_active=True)
 
-
-                cart = Cart.objects.get(cart_id=_cart_id(request))
-                cart_items = CartItem.objects.filter(cart=cart, is_active=True)
         for cart_item in cart_items:
-            total += (cart_item.product.price * cart_item.quantity)
+            total += cart_item.product.price * cart_item.quantity
             quantity += cart_item.quantity
 
         tax = (2 * total) / 100
@@ -373,6 +428,40 @@ def checkout(request,total=0, quantity=0, cart_items=None):
     except ObjectDoesNotExist:
         pass
 
+    # 🔥 THIS IS THE IMPORTANT PART
+    if request.method == 'POST':
+        order = Order(
+            user=request.user,
+            first_name=request.POST['first_name'],
+            last_name=request.POST['last_name'],
+            phone=request.POST['phone'],
+            email=request.POST['email'],
+            address_line_1=request.POST['address_line_1'],
+            country=request.POST['country'],
+            state=request.POST['state'],
+            city=request.POST['city'],
+            order_total=grand_total,
+            tax=tax,
+            ip=request.META.get('REMOTE_ADDR'),
+            is_ordered=True,
+        )
+        order.save()  # ✅ THIS CREATES THE ORDER
+
+        # save products
+        for item in cart_items:
+            OrderProduct.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                product_price=item.product.price,
+                user=request.user,
+            )
+
+        # clear cart
+        cart_items.delete()
+
+        return redirect('order_success')  # or payment page
+
     context = {
         'total': total,
         'quantity': quantity,
@@ -380,4 +469,4 @@ def checkout(request,total=0, quantity=0, cart_items=None):
         'tax': tax,
         'grand_total': grand_total,
     }
-    return render(request, 'store/checkout.html',context)
+    return render(request, 'store/checkout.html', context)

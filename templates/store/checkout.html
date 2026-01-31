@@ -13,8 +13,10 @@
 <div class="card">
   <div class="card-body">
   <h4 class="card-title mb-4">Billing Address</h4>
-	<form action=""  method="POST">
+	<form action= "{% url 'place_order' %}"  method = "POST">
 		{% csrf_token %}
+		<!-- {{ form.as_p }}
+		<<button type="submit" name="button">Place Order</button> -->
 		<div class="form-row">
 			<div class="col form-group">
 				<label for="">First Name</label>
@@ -127,10 +129,11 @@
       </table>
 
 
-			
+
 			<button type="submit" name="submit" class="btn btn-primary btn-block">Place Order</button>
+		</form>
 			<a href="{% url 'store'%}" class="btn btn-light btn-block">Continue Shopping</a>
-				</form>
+
 		</div> <!-- card-body.// -->
 		</div> <!-- card.// -->
 

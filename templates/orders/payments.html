@@ -1,0 +1,353 @@
+{%  extends 'base.html' %}
+{%  load static %}
+
+{%  block content %}
+
+<section class="section-content padding-y bg">
+<div class="container">
+
+<!-- ============================ COMPONENT 1 ================================= -->
+<h4 class="text-center-mb-10">Review your order and make payment</h4>
+<div class="row">
+
+	<aside class="col-lg-8">
+    <div class="card">
+  <h5 class="card-header">
+  Billing Address
+  </h5>
+  <div class="card-body">
+
+		<p class="card-text mb=0">{{order.full_name}}</p>
+		<p class="card-text mb=0">{{order.full_name}}</p>
+		<p class="card-text mb=0">{{order.city}}, {{order.state}}</p>
+
+		<p class="card-text">{{order.country}}</p>
+		<p class="card-text">{{order.phone}}</p>
+		<p class="card-text">{{order.email}}</p>
+
+
+    {% if order.order_note %}
+		<b>Order Note: </b> {{order.order_note}}
+		{% endif %}
+
+  </div>
+</div>
+
+<div class="card">
+<h5 class="card-header">
+Payment Method
+</h5>
+<div class="card-body">
+
+<p class="card-text">PayPal</p>
+
+</div>
+</div>
+
+<div class="card">
+<h5 class="card-header">
+Review Products
+</h5>
+<div class="card-body">
+
+	<table class="table table-borderless table-shopping-cart">
+	<thead class="text-muted">
+	<tr class="small text-uppercase">
+		<th scope="col">Product</th>
+		<th scope="col" width="120">Quantity</th>
+		<th scope="col" width="120">Price</th>
+
+	</tr>
+	</thead>
+	<tbody>
+		{% for cart_item in cart_items  %}
+	<tr>
+		<td>
+			<figure class="itemside align-items-center">
+				<div class="aside"><img src="{{ cart_item.product.images.url }}" class="img-sm"></div>
+				<figcaption class="info">
+					<a href="{{cart_item.product.get_url}}" class="title text-dark">{{cart_item.product.product_name}}</a>
+					<p class="text-muted small">
+						{% if cart_item.variations.all %}
+						{% for item in cart_item.variations.all %}
+						{{item.variation_category | capfirst}} : {{ item.variation_value | capfirst}}<br>
+
+						{% endfor %}
+						{% endif %}
+					</p>
+				</figcaption>
+			</figure>
+		</td>
+		<td>
+
+			<label for="">{{cart_item.quantity}}</label>
+
+
+		</td>
+		<td>
+			<div class="price-wrap">
+				<var class="price">${{cart_item.sub_total}}</var>
+				<small class="text-muted"> ${{cart_item.product.price}} each </small>
+			</div> <!-- price-wrap .// -->
+		</td>
+
+	</tr>
+	{% endfor %}
+
+
+	</tbody>
+	</table>
+</div>
+</div>
+
+	</aside>
+	<aside class="col-lg-4">
+
+		<div class="card">
+		<div class="card-body">
+			<dl class="dlist-align">
+			  <dt>Total price:</dt>
+			  <dd class="text-right">${{total}}</dd>
+			</dl>
+			<dl class="dlist-align">
+			  <dt>Tax:</dt>
+			  <dd class="text-right"> {{tax}}</dd>
+			</dl>
+			<dl class="dlist-align">
+			  <dt>Grand Total</dt>
+			  <dd class="text-right text-dark b"><strong>{{grand_total}}</strong></dd>
+			</dl>
+			<hr>
+			<p class="text-center mb-3">
+				<img src="{% static './images/misc/payments.png'%}" height="26">
+			</p>
+
+		<div id="payment-button-container">
+
+
+		</div>
+
+		</div> <!-- card-body.// -->
+		</div> <!-- card.// -->
+
+</aside>
+
+
+</div>
+
+<!-- row.// -->
+<!-- ============================ COMPONENT 1 END .// ================================= -->
+
+</div> <!-- container .//  -->
+</section>
+<!-- <script src="https://www.paypal.com/sdk/js?client-id=AfXskOPFe2_leNS4NhudWWmdrL16ASTC_KZ5imzVbmhxs5QVMMEozTRmRh-sXOjZMk60h05qbYhPFQeL&currency=USD"></script>
+<script>
+					paypal.Buttons({
+
+					// 🧾 Create the order when button is clicked
+					createOrder: function (data, actions) {
+					return actions.order.create({
+					purchase_units: [{
+						amount: {
+							value: '10.00' // 💰 Your product price
+						}
+					}]
+					});
+					},
+
+					// 🎉 After buyer approves payment
+					onApprove: function (data, actions) {
+					return actions.order.capture().then(function (details) {
+					alert('Payment successful! Buyer: ' + details.payer.name.given_name);
+
+					console.log('Transaction details:', details);
+
+					// 🔐 Send order ID to your server for verification (important in real apps)
+					// fetch('/verify-payment', { method: 'POST', body: JSON.stringify({ orderID: data.orderID }) })
+					});
+					},
+
+					// ❌ If payment fails
+					onError: function (err) {
+					console.error('Payment error:', err);
+					alert('Something went wrong with the payment.');
+					}
+
+					}).render('#paypal-button-container'); // 👈 This actually renders the button
+</script> -->
+
+<!-- PayPal SDK -->
+<script src="https://www.paypal.com/sdk/js?client-id=AfXskOPFe2_leNS4NhudWWmdrL16ASTC_KZ5imzVbmhxs5QVMMEozTRmRh-sXOjZMk60h05qbYhPFQeL&currency=USD"></script>
+
+<!-- <script>
+
+	function getCookie(name) {
+	    let cookieValue = null;
+	    if (document.cookie && document.cookie !== '') {
+	        const cookies = document.cookie.split(';');
+	        for (let i = 0; i < cookies.length; i++) {
+	            const cookie = cookies[i].trim();
+	            // Does this cookie string begin with the name we want?
+	            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+	                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+	                break;
+	            }
+	        }
+	    }
+	    return cookieValue;
+	}
+
+
+	var amount = "{{ grand_total }}"
+	var url =" {% url 'payments' %}"
+	var csrftoken = getCookie('csrftoken');
+	var orderID = "{{order.order_number}}"
+	var payment_method = 'Paypal'
+
+
+paypal.Buttons({
+
+	style:  {
+		      color: 'blue',
+					shape: 'pill',
+				  label: 'pay',
+					height: 40
+	},
+
+    createOrder: function (data, actions) {
+        return actions.order.create({
+            purchase_units: [{
+                amount: {
+                    value:  amount,  // dynamic price from Django
+                }
+            }]
+        });
+    },
+
+    onApprove: function (data, actions) {
+        return actions.order.capture().then(function (details) {
+
+            // Send to Django backend to mark order as paid
+						console.log(details);
+						sendData();
+
+					  function sendData(){
+							fetch(url, {
+								method: "POST",
+								headers: {
+									"Content-type": "application/json",
+									"X-CSRFToken": csrftoken,
+								},
+								body: JSON.stringify({
+									orderID: orderID,
+									transID : details.id,
+									payment_method : payment_method,
+									status: details.status,
+								}),
+							})
+							// .then(response => response.json())
+							// .then(data => console.log(data));
+						}
+            fetch("{% url 'payments' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({
+                    orderID: data.orderID,
+                    transID: details.id,
+                    payment_method: 'PayPal',
+                    status: details.status
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                window.location.href = data.redirect_url;
+            });
+
+        });
+    },
+
+    onError: function (err) {
+        console.error('Payment error:', err);
+        alert('Payment failed.');
+    }
+
+}).render('#payment-button-container');
+</script>
+ -->
+ <script>
+ function getCookie(name) {
+     let cookieValue = null;
+     if (document.cookie && document.cookie !== '') {
+         const cookies = document.cookie.split(';');
+         for (let cookie of cookies) {
+             cookie = cookie.trim();
+             if (cookie.startsWith(name + '=')) {
+                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                 break;
+             }
+         }
+     }
+     return cookieValue;
+ }
+
+ var amount = "{{ grand_total }}";
+ var url = "{% url 'payments' %}";
+ var csrftoken = getCookie('csrftoken');
+ var orderID = "{{ order.order_number }}";   // ⭐ YOUR DJANGO ORDER
+ var payment_method = "PayPal";
+
+ paypal.Buttons({
+
+     style: {
+         color: 'blue',
+         shape: 'pill',
+         label: 'pay',
+         height: 40
+     },
+
+     createOrder: function (data, actions) {
+         return actions.order.create({
+             purchase_units: [{
+                 amount: { value: amount }
+             }]
+         });
+     },
+
+     onApprove: function (data, actions) {
+         return actions.order.capture().then(function (details) {
+
+             fetch(url, {
+                 method: "POST",
+                 headers: {
+                     "Content-Type": "application/json",
+                     "X-CSRFToken": csrftoken,
+                 },
+                 body: JSON.stringify({
+                     orderID: orderID,        // ⭐ send Django order
+                     transID: details.id,     // PayPal transaction
+                     payment_method: payment_method,
+                     status: details.status,
+                 }),
+             })
+             .then(response => response.json())
+             .then(data => {
+                 window.location.href = data.redirect_url;
+             });
+
+         });
+     },
+
+     onError: function (err) {
+         console.error(err);
+         alert("Payment failed.");
+     }
+
+ }).render('#payment-button-container');
+ </script>
+
+
+
+{% endblock %}
