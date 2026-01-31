@@ -136,11 +136,21 @@
   {% for product in products  %}
 	<div class="col-md-4">
 		<figure class="card card-product-grid">
-			<div class="img-wrap">
+			<!-- <div class="img-wrap">
 
 			<a href="{{ product.get_url}}">	<img src="{{product.images.url}}"></a>
 
-			</div>
+			</div> -->
+			<div class="img-wrap">
+    <a href="{{ product.get_url}}">
+        {% if product.images %}
+            <img src="{{ product.images.url }}">
+        {% else %}
+            <img src="{% static 'images/default-product.png' %}">
+        {% endif %}
+    </a>
+</div>
+
 			<figcaption class="info-wrap">
 				<div class="fix-height">
 					<a href="{{product.get_url}}" class="title">{{product.product_name}}</a>
